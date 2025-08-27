@@ -20,6 +20,15 @@ export default function App() {
 
   const error = errorInfo || errorHist
 
+  // Fallback data for demo purposes
+  const fallbackData = {
+    price: 45000,
+    changePct: 2.5,
+    marketCap: 850000000000,
+    high24h: 46000,
+    low24h: 44000
+  }
+
   const price = info?.market_data?.current_price?.[currency]
 
   const changePct = info?.market_data?.price_change_percentage_24h
@@ -65,21 +74,26 @@ export default function App() {
 
         {loading && <div className="text-center text-gray-600 py-10">Loading data…</div>}
 
-        {error && <div className="text-center text-red-600 py-10">Error: {error}</div>}
+        {error && (
+          <div className="text-center py-10">
+            <div className="text-red-600 mb-4">API Error: {error}</div>
+            <div className="text-sm text-gray-500">Showing demo data below</div>
+          </div>
+        )}
 
-        {!loading && !error && (
+        {(!loading || error) && (
 
           <div className="flex flex-col gap-6">
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
 
-              <Card title="Current Price" value={price ? (currency === 'inr' ? `₹${price.toLocaleString()}` : `$${price.toLocaleString()}`) : '—'} hint={`Currency: ${currency.toUpperCase()}`} />
+              <Card title="Current Price" value={(price || fallbackData.price) ? (currency === 'inr' ? `₹${(price || fallbackData.price).toLocaleString()}` : `$${(price || fallbackData.price).toLocaleString()}`) : '—'} hint={`Currency: ${currency.toUpperCase()}`} />
 
-              <Card title="24h Change" value={typeof changePct === 'number' ? `${changePct.toFixed(2)}%` : '—'} hint={changePct >= 0 ? 'Bullish 24h' : 'Bearish 24h'} />
+              <Card title="24h Change" value={typeof (changePct ?? fallbackData.changePct) === 'number' ? `${(changePct ?? fallbackData.changePct).toFixed(2)}%` : '—'} hint={(changePct ?? fallbackData.changePct) >= 0 ? 'Bullish 24h' : 'Bearish 24h'} />
 
-              <Card title="Market Cap" value={formatMoney(marketCap)} />
+              <Card title="Market Cap" value={formatMoney(marketCap || fallbackData.marketCap)} />
 
-              <Card title="24h High / Low" value={`${high24h ? (currency === 'inr' ? `₹${high24h.toLocaleString()}` : `$${high24h.toLocaleString()}`) : '—'} / ${low24h ? (currency === 'inr' ? `₹${low24h.toLocaleString()}` : `$${low24h.toLocaleString()}`) : '—'}`} />
+              <Card title="24h High / Low" value={`${(high24h || fallbackData.high24h) ? (currency === 'inr' ? `₹${(high24h || fallbackData.high24h).toLocaleString()}` : `$${(high24h || fallbackData.high24h).toLocaleString()}`) : '—'} / ${(low24h || fallbackData.low24h) ? (currency === 'inr' ? `₹${(low24h || fallbackData.low24h).toLocaleString()}` : `$${(low24h || fallbackData.low24h).toLocaleString()}`) : '—'}`} />
 
             </div>
 
